@@ -25,6 +25,21 @@ class GoldDataPipeline:
         """
         Generates realistic 2-month 5-minute Gold (XAUUSD) market candles for backtesting & charting.
         """
+        # Check for cached 15-day spot market data from API
+        cache_paths = ["xaus_15d_spot_cache.json", "../xaus_15d_spot_cache.json"]
+        for cp in cache_paths:
+            if os.path.exists(cp):
+                try:
+                    with open(cp, "r", encoding="utf-8") as f:
+                        cached_data = json.load(f)
+                        if cached_data and len(cached_data) > 0:
+                            df = pd.DataFrame(cached_data)
+                            if "volume" not in df.columns:
+                                df["volume"] = 1200.0
+                            return df
+                except Exception:
+                    pass
+
         np.random.seed(42)  # Deterministic seed for reproducible testing
         total_candles = int((days * 24 * 60) / interval_minutes)
         start_time = datetime.now(timezone.utc) - timedelta(days=days)
