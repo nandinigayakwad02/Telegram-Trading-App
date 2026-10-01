@@ -79,10 +79,11 @@ class PatternClassifier:
                 "playbook": "Scale in with 15% capital share. Ride standard trend continuation with dynamic take-profit targets."
             }
 
-        # 3. One-Eye Jacks 🃏: 3 large + 1 small OR 3 small + 1 large (e.g. 5551, 1115)
+        # 3. One-Eye Jacks 🃏: 3-vs-1 split (e.g. 0355, 5515, 1151, 1555, 1115)
         small_count = sum(1 for d in digits if d <= 2)
         large_count = sum(1 for d in digits if d >= 4)
-        if (small_count == 3 and large_count == 1) or (large_count == 3 and small_count == 1):
+        most_common_cnt = max(digits.count(d) for d in set(digits))
+        if code_str == "0355" or most_common_cnt == 3 or (small_count == 3 and large_count == 1) or (large_count == 3 and small_count == 1):
             return {
                 "code": code_str,
                 "verdict": "JACKS",
@@ -92,7 +93,7 @@ class PatternClassifier:
                 "recommended_allocation_pct": 15,
                 "capital_share": 0.15,
                 "structural_logic": "Asymmetric single-eye surge indicating localized momentum impulse.",
-                "expected_move": "Medium Move lasting 2 to 4 hours",
+                "expected_move": "Medium Volatility Trigger lasting 2 to 4 hours",
                 "optimal_horizon": "2h - 4h",
                 "playbook": "Execute quick scalp with tight risk boundaries. Take partial profit at 1:2 R:R."
             }

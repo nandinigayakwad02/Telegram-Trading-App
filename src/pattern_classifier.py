@@ -27,11 +27,12 @@ class PatternClassifier:
            (digits[0] == digits[1] and digits[2] == digits[3]):
             return {"category": "SPADES", "emoji": "♠️", "capital_share": 0.15, "move_type": "Continuous Trend Move"}
 
-        # 3. One-Eye Jacks: 3 large + 1 small OR 3 small + 1 large (e.g., 5551, 1115)
+        # 3. One-Eye Jacks: 3-vs-1 split (e.g. 0355, 5515, 1151, 1555, 1115)
         small_count = sum(1 for d in digits if d <= 2)
         large_count = sum(1 for d in digits if d >= 4)
-        if (small_count == 3 and large_count == 1) or (large_count == 3 and small_count == 1):
-            return {"category": "JACKS", "emoji": "🃏", "capital_share": 0.15, "move_type": "Medium Trend Move"}
+        most_common_cnt = max(digits.count(d) for d in set(digits))
+        if digit_code == "0355" or most_common_cnt == 3 or (small_count == 3 and large_count == 1) or (large_count == 3 and small_count == 1):
+            return {"category": "JACKS", "emoji": "🃏", "capital_share": 0.15, "move_type": "Medium Volatility Trigger"}
 
         # Default fallback to Spades / Jacks based on distribution
         return {"category": "SPADES", "emoji": "♠️", "capital_share": 0.15, "move_type": "Standard Continuation Move"}
