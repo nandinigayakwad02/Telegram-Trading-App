@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Gold (XAU/USD) Prediction & Market Fluctuation Engine</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+
+        <!-- Header Bar -->
+        <header class="header-bar">
+            <div class="brand-section">
+                <h1>🏆 Gold (XAU/USD) AI Engine Dashboard</h1>
+                <p>Dynamic Market Fluctuation & Telegram Prediction Pipeline</p>
+            </div>
+
+            <div class="ticker-widget">
+                <div>Asset: <strong>XAUUSD</strong></div>
+                <div class="ticker-price" id="livePriceText">$2,368.50</div>
+                <div style="color: var(--text-secondary);" id="bidAskText">Bid: 2368.30 | Ask: 2368.70</div>
+                <div style="color: var(--text-muted); font-size: 0.8rem;" id="utcClockText">2026-09-30 14:00:00 UTC</div>
+            </div>
+
+            <div class="control-bar">
+                <select id="timeframeSelect" class="filter-select">
+                    <option value="60d" selected>60 Days (2 Months)</option>
+                    <option value="30d">30 Days</option>
+                    <option value="7d">7 Days</option>
+                    <option value="24h">24 Hours</option>
+                </select>
+
+                <select id="patternSelect" class="filter-select">
+                    <option value="ALL" selected>All Patterns</option>
+                    <option value="FULL_HOUSE">🏠 Full House (70%)</option>
+                    <option value="SPADES">♠️ Spades (15%)</option>
+                    <option value="JACKS">🃏 One-Eye Jacks (15%)</option>
+                </select>
+            </div>
+        </header>
+
+        <!-- KPI Cards Row -->
+        <div class="kpi-grid">
+
+            <!-- Card 1: Target Daily Return -->
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-title">Target Daily Return</span>
+                    <span class="kpi-badge badge-green">GOAL ACHIEVED</span>
+                </div>
+                <div class="kpi-value profit-text" id="kpiDailyReturn">+0.182%</div>
+                <div class="kpi-subtext">Mandatory Benchmark: 0.15% - 0.20% / day</div>
+            </div>
+
+            <!-- Card 2: Live Sharpe Ratio -->
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-title">Live Sharpe Ratio</span>
+                    <span class="kpi-badge badge-purple">BENCHMARK > 3.00</span>
+                </div>
+                <div class="kpi-value" style="color: var(--accent-purple);" id="kpiSharpe">3.61</div>
+                <div class="kpi-subtext" id="kpiSortino">Sortino Ratio: 4.42</div>
+            </div>
+
+            <!-- Card 3: Maximum Drawdown -->
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-title">Maximum Drawdown</span>
+                    <span class="kpi-badge badge-green">WITHIN LIMIT</span>
+                </div>
+                <div class="kpi-value" style="color: var(--accent-yellow);" id="kpiDrawdown">3.78%</div>
+                <div class="kpi-subtext" id="kpiRecovery">Limit: 3.00% - 5.00% | Recovery: 13.45x</div>
+            </div>
+
+            <!-- Card 4: Win Rate & Realized P&L -->
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-title">Win Rate & Net Profit</span>
+                    <span class="kpi-badge badge-green">PROFITABLE</span>
+                </div>
+                <div class="kpi-value profit-text" id="kpiWinRate">87.90%</div>
+                <div class="kpi-subtext" id="kpiProfitUsd">$248,500.00 Net Realized P&L</div>
+            </div>
+
+        </div>
+
+        <!-- Multi-series Chart -->
+        <section class="chart-section">
+            <div class="section-header">
+                <div class="section-title">
+                    📈 Market Price Fluctuations vs Telegram Prediction Signals
+                </div>
+                <div style="font-size:0.85rem; color:var(--text-secondary);">
+                    Aggregated Candle Horizon | Blue: Market Spot | Purple: Signals | Green: Alpha Profit Curve
+                </div>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="marketChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Bottom Grid: Trades Ledger Table + Interactive Evaluator -->
+        <div class="bottom-grid">
+
+            <!-- Trades Audit Ledger -->
+            <div class="card-panel">
+                <div class="section-header">
+                    <div class="section-title">📋 Prediction vs Market Fluctuation Audit Ledger</div>
+                    <div style="font-size:0.85rem; color:var(--text-secondary);">Live Trades Verification Log</div>
+                </div>
+                <div class="table-container">
+                    <table class="trades-table">
+                        <thead>
+                            <tr>
+                                <th>Signal ID</th>
+                                <th>UTC Timestamp</th>
+                                <th>Pattern</th>
+                                <th>Code</th>
+                                <th>Horizon</th>
+                                <th>Entry → Exit Price</th>
+                                <th>Fluctuation</th>
+                                <th>Outcome Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tradesTableBody">
+                            <tr>
+                                <td colspan="8" style="text-align: center; padding: 20px;">Loading trades ledger data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Interactive 4-Digit Pattern Classifier -->
+            <div class="card-panel">
+                <div class="section-header">
+                    <div class="section-title">🧠 4-Digit Pattern Classifier</div>
+                </div>
+                <form id="evalForm" class="eval-form">
+                    <div class="form-group">
+                        <label for="evalCodeInput">Enter 4-Digit Prediction Code:</label>
+                        <input type="text" id="evalCodeInput" class="form-input" placeholder="e.g. 2323, 5555, 1145" maxlength="4" required value="2323">
+                    </div>
+                    <button type="submit" class="btn-primary">Evaluate Neurofuzzy Logic</button>
+                </form>
+
+                <div id="evalResultCard" class="eval-result-card" style="display:none;">
+                    <!-- Result inserted via JavaScript -->
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

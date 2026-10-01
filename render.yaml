@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: telegram-trading-ai-engine
+    env: python
+    rootDir: Telegram_Trading_AI_Engine
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.12

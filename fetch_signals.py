@@ -2,6 +2,7 @@ import asyncio
 import json
 import os
 import re
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, List
 from dotenv import load_dotenv
 from telethon import TelegramClient
@@ -38,23 +39,15 @@ def parse_trading_signal(text: str, msg_id: int, date_str: str) -> Dict[str, Any
         "raw_text": text
     }
 
-async def fetch_history(limit=500):
+async def fetch_history(days=15, max_limit=3000):
     if not API_ID or not API_HASH:
-        print("\n" + "="*60)
-        print("❌ MISSING TELEGRAM API CREDENTIALS")
-        print("="*60)
-        print("Because 'Gold 20m [XAU - NZ]' is a private channel, Telegram requires authentication.")
-        print("\nTo fetch all past signals:")
-        print("1. Go to https://my.telegram.org and log in.")
-        print("2. Click 'API Development Tools' and copy your API ID & API HASH.")
-        print("3. Paste them into your .env file:")
-        print("   TELEGRAM_API_ID=your_api_id")
-        print("   TELEGRAM_API_HASH=your_api_hash")
-        print("4. Re-run: python3 fetch_signals.py")
-        print("="*60 + "\n")
+        print("❌ MISSING TELEGRAM API CREDENTIALS in .env!")
         return
 
+    cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
     print(f"Connecting to Telegram for Private Chat ID: {CHAT_ID}...")
+    print(f"Targeting past {days} days of history (Cutoff Date: {cutoff_date.strftime('%Y-%m-%d %H:%M:%S UTC')})...")
+
     api_id_int = int(API_ID)
     async with TelegramClient("session_name", api_id_int, API_HASH) as client:
         entity = await client.get_entity(CHAT_ID)
@@ -64,7 +57,11 @@ async def fetch_history(limit=500):
         signals: List[Dict[str, Any]] = []
         count = 0
 
-        async for message in client.iter_messages(entity, limit=limit):
+        async for message in client.iter_messages(entity, limit=max_limit):
+            if message.date and message.date < cutoff_date:
+                print(f"Reached cutoff date {message.date}. Stopping fetch.")
+                break
+
             if message.text:
                 count += 1
                 signal_data = parse_trading_signal(
@@ -74,17 +71,13 @@ async def fetch_history(limit=500):
                 )
                 signals.append(signal_data)
 
-        print(f"\n✅ Successfully fetched {count} previous signals from channel!")
+        print(f"\n✅ Successfully fetched {count} signals covering the last {days} days!")
         
         out_file = "gold_20m_signals.json"
         with open(out_file, "w", encoding="utf-8") as f:
             json.dump(signals, f, indent=4, ensure_ascii=False)
             
-        print(f"📁 Saved all extracted signals to: {out_file}\n")
-
-        print("--- Last 5 Extracted Signals ---")
-        for sig in signals[:5]:
-            print(f"[{sig['date']}] {sig['instrument']} @ Price: {sig['price']} | Verdict: {sig['recent_verdict']} | Overall Signal: {sig['overall_signal']}")
+        print(f"📁 Saved 15-day dataset to: {out_file}\n")
 
 if __name__ == "__main__":
-    asyncio.run(fetch_history(limit=500))
+    asyncio.run(fetch_history(days=15, max_limit=3000))
